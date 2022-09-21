@@ -32,6 +32,14 @@ print("payload_size: {}".format(payload_size))
 FRAME_WINDOW = st.image([])
 faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
+# recognizer = cv2.face.LBPHFaceRecognizer_create()
+# recognizer.read("./recognizers/face-trainner.yml")
+
+# labels = {'person_name':1}
+# with open('pickles/face-labels.pickle', 'rb') as f:
+#     og_labels = pickle.load(f)
+#     labels = {v:k for k,v in og_labels.items()}
+
 while True:
     while len(data) < payload_size:
         data += conn.recv(4096)
@@ -65,8 +73,14 @@ while True:
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     
     # face recognition
-    encodings = face_recognition.face_encodings(rgb)
-    names = []
+    # encodings = face_recognition.face_encodings(rgb)
+    # names = []
+    # for (x,y,w,h) in faces:
+    #     roi_gray = gray[y:y+h, x:x+w]
+    #     roi_color = frame[y:y+h, x:x+w]
+        
+    #     id_, conf = recognizer.predict(roi_gray)
+    #     print(conf)
 
     # for encoding in encodings:
     #     matches = face_recognition.compare_faces(Data[''])

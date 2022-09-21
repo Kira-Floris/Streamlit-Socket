@@ -63,8 +63,13 @@ while True:
         flags=cv2.CASCADE_SCALE_IMAGE
     )
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    # encodings = face
+    
+    # face recognition
+    encodings = face_recognition.face_encodings(rgb)
+    names = []
 
+    # for encoding in encodings:
+    #     matches = face_recognition.compare_faces(Data[''])
 
 
 

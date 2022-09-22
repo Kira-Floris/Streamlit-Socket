@@ -50,5 +50,7 @@ def face_comparison(frame):
             name = known_face_names[best_match_index]
         
         return name
+    
+    return None
 
 

@@ -11,10 +11,12 @@ from PIL import Image, ImageOps
 import streamlit as st
 import face_recognition
 import imutils
+from datetime import datetime, date
+import pandas as pd
 
 from utils import face_comparison
 
-HOST='192.168.1.81'
+HOST='127.0.0.1'
 PORT=8485
 
 s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -33,6 +35,8 @@ print("payload_size: {}".format(payload_size))
 
 FRAME_WINDOW = st.image([])
 faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+
+student = pd.read_csv('./data/db.csv')
 
 while True:
     while len(data) < payload_size:
@@ -65,21 +69,26 @@ while True:
         flags=cv2.CASCADE_SCALE_IMAGE
     )
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-    face_comparison(frame)
-    
-    # face recognition
-    # encodings = face_recognition.face_encodings(rgb)
-    # names = []
-    # for (x,y,w,h) in faces:
-    #     roi_gray = gray[y:y+h, x:x+w]
-    #     roi_color = frame[y:y+h, x:x+w]
+    name = face_comparison(frame)
+
+    # check if person exists in database
+    if name is not None and name!='Unknown':
+        attendance = pd.read_csv('./data/attendance.csv')
+        if len(attendance)==0:
+            attendance = attendance.append({'name':name, 'entrance_time':datetime.now(),'entrance_date':date.today()}, ignore_index=True).reset_index(drop=True)
+            attendance.to_csv('./data/attendance.csv')
+
+        per = attendance.loc[attendance['name']==name]
+        if len(per)!=0:
+            tail = per.tail(1)
+            dt = str(list(tail['entrance_date'])[0]).split('-')
+            if int(dt[0])!=int(datetime.now().year) and int(dt[1])!=int(datetime.now().month) and int(dt[2])!=int(datetime.now().day):
+                attendance = attendance.append({'name':name, 'entrance_time':datetime.now(),'entrance_date':date.today()}, ignore_index=True).reset_index(drop=True)
+                attendance.to_csv('./data/attendance.csv')
+        else:
+            attendance = attendance.append({'name':name, 'entrance_time':datetime.now(),'entrance_date':date.today()}, ignore_index=True).reset_index(drop=True)
+            attendance.to_csv('./data/attendance.csv')
         
-    #     id_, conf = recognizer.predict(roi_gray)
-    #     print(conf)
-
-    # for encoding in encodings:
-    #     matches = face_recognition.compare_faces(Data[''])
-
 
 
 
@@ -88,9 +97,43 @@ while True:
 
     for (x, y, w, h) in faces:
         cv2.rectangle(frame, (x,y),(x+w, y+h),(0,255,0), 2)
-    FRAME_WINDOW.image(frame)
+        font = cv2.FONT_HERSHEY_DUPLEX
+        if name is not None:
+            cv2.putText(frame, name, (x+6,h-6), font, 1.0,(255,255,255),1)
+    FRAME_WINDOW.image(frame, caption=name, width=700)
+
+
 
 import streamlit as st
 import pandas as pd
 
-st.write(data_)
+from streamlit_option_menu import option_menu
+from streamlit_lottie import st_lottie
+import plotly.express as px
+import plotly.graph_objects as go
+
+from ui.register import register
+
+st.set_page_config(page_title='Face Recognition Attendance System')
+
+selected = option_menu(
+    menu_title="Stroke Prediction AI", # required
+    options=['Home','Register'],
+    default_index = 0,
+    orientation = 'horizontal',
+    styles={
+        "container": {"padding":"0!important", "background-color":"write",},
+        "nav-link":{
+            "font-size":"18px",
+            "text-align":"left",
+            "margin":"0px",
+            },
+        "nav-link-selected":{"background-color":"gray"}, 
+            },
+)
+
+if selected == 'Home':
+    st.write('hey')
+
+if selected == 'Register':
+    register()

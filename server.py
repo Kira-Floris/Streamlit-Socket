@@ -12,7 +12,9 @@ import streamlit as st
 import face_recognition
 import imutils
 
-HOST='127.0.0.1'
+from utils import face_comparison
+
+HOST='192.168.1.81'
 PORT=8485
 
 s=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -31,14 +33,6 @@ print("payload_size: {}".format(payload_size))
 
 FRAME_WINDOW = st.image([])
 faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-
-# recognizer = cv2.face.LBPHFaceRecognizer_create()
-# recognizer.read("./recognizers/face-trainner.yml")
-
-# labels = {'person_name':1}
-# with open('pickles/face-labels.pickle', 'rb') as f:
-#     og_labels = pickle.load(f)
-#     labels = {v:k for k,v in og_labels.items()}
 
 while True:
     while len(data) < payload_size:
@@ -71,6 +65,7 @@ while True:
         flags=cv2.CASCADE_SCALE_IMAGE
     )
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+    face_comparison(frame)
     
     # face recognition
     # encodings = face_recognition.face_encodings(rgb)

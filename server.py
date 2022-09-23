@@ -100,10 +100,3 @@ while True:
 
     with open('stream','wb') as fp:
         pickle.dump(frame, fp)
-
-    
-
-video.release()
-
-
-

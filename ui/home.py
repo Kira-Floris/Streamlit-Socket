@@ -16,10 +16,13 @@ def home():
     st.header('Home')
     FRAME_WINDOW = st.image([])
     while True:
-        with open('stream', 'rb') as fp:
-            frame = pickle.load(fp)
-        FRAME_WINDOW.image(frame, caption='None', width=700)
-        time.sleep(0.1)
+        try:
+            with open('stream', 'rb') as fp:
+                frame = pickle.load(fp)
+            FRAME_WINDOW.image(frame, caption='None', width=700)
+            
+        except:
+            continue
     # read the list while appending 
 
 

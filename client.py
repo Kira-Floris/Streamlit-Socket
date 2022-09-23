@@ -9,7 +9,6 @@ import imutils
 
 
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# client_socket.connect(('0.tcp.ngrok.io', 19194))
 client_socket.connect(('127.0.0.1', 8485))
 
 cam = cv2.VideoCapture(0)

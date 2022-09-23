@@ -8,11 +8,12 @@ import numpy as np
 import struct ## new
 import zlib
 from PIL import Image, ImageOps
-import streamlit as st
+# import streamlit as st
 import face_recognition
 import imutils
 from datetime import datetime, date
 import pandas as pd
+import pickle
 
 from utils import face_comparison
 
@@ -33,7 +34,7 @@ data = b""
 payload_size = struct.calcsize(">L")
 print("payload_size: {}".format(payload_size))
 
-FRAME_WINDOW = st.image([])
+# FRAME_WINDOW = st.image([])
 faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 
 student = pd.read_csv('./data/db.csv')
@@ -89,51 +90,20 @@ while True:
             attendance = attendance.append({'name':name, 'entrance_time':datetime.now(),'entrance_date':date.today()}, ignore_index=True).reset_index(drop=True)
             attendance.to_csv('./data/attendance.csv')
         
-
-
-
-
-
-
+    # adding a rectangle to face detected and name
     for (x, y, w, h) in faces:
         cv2.rectangle(frame, (x,y),(x+w, y+h),(0,255,0), 2)
         font = cv2.FONT_HERSHEY_DUPLEX
         if name is not None:
             cv2.putText(frame, name, (x+6,h-6), font, 1.0,(255,255,255),1)
-    FRAME_WINDOW.image(frame, caption=name, width=700)
+    # FRAME_WINDOW.image(frame, caption=name, width=700)
+
+    with open('stream','wb') as fp:
+        pickle.dump(frame, fp)
+
+    
+
+video.release()
 
 
 
-import streamlit as st
-import pandas as pd
-
-from streamlit_option_menu import option_menu
-from streamlit_lottie import st_lottie
-import plotly.express as px
-import plotly.graph_objects as go
-
-from ui.register import register
-
-st.set_page_config(page_title='Face Recognition Attendance System')
-
-selected = option_menu(
-    menu_title="Stroke Prediction AI", # required
-    options=['Home','Register'],
-    default_index = 0,
-    orientation = 'horizontal',
-    styles={
-        "container": {"padding":"0!important", "background-color":"write",},
-        "nav-link":{
-            "font-size":"18px",
-            "text-align":"left",
-            "margin":"0px",
-            },
-        "nav-link-selected":{"background-color":"gray"}, 
-            },
-)
-
-if selected == 'Home':
-    st.write('hey')
-
-if selected == 'Register':
-    register()

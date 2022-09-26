@@ -12,7 +12,6 @@ import time
 from utils import face_recognition
 
 def home():
-    
     st.header('Home')
     FRAME_WINDOW = st.image([])
     while True:
@@ -22,7 +21,8 @@ def home():
             FRAME_WINDOW.image(frame, caption='None', width=700)
             
         except:
-            continue
+            st.write('')
+        # st.stop()
     # read the list while appending 
 
 

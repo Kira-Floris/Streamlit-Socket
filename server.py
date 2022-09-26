@@ -72,24 +72,32 @@ while True:
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     name = face_comparison(frame)
 
+    # function to register attending student
+    def attended(query,fram):
+        attendance = pd.read_csv('./data/attendance.csv')
+        attendance = attendance.append(query, ignore_index=True).reset_index(drop=True)
+        attendance.to_csv('./data/attendance.csv')
+        # save the current image to server
+        with open('stream2','wb') as fr:
+            pickle.dump(fram, fr)
+
+
     # check if person exists in database
     if name is not None and name!='Unknown':
         attendance = pd.read_csv('./data/attendance.csv')
         if len(attendance)==0:
-            attendance = attendance.append({'name':name, 'entrance_time':datetime.now(),'entrance_date':date.today()}, ignore_index=True).reset_index(drop=True)
-            attendance.to_csv('./data/attendance.csv')
+            attended({'name':name, 'entrance_time':datetime.now(),'entrance_date':date.today()}, frame)
 
         per = attendance.loc[attendance['name']==name]
         if len(per)!=0:
             tail = per.tail(1)
             dt = str(list(tail['entrance_date'])[0]).split('-')
             if int(dt[0])!=int(datetime.now().year) and int(dt[1])!=int(datetime.now().month) and int(dt[2])!=int(datetime.now().day):
-                attendance = attendance.append({'name':name, 'entrance_time':datetime.now(),'entrance_date':date.today()}, ignore_index=True).reset_index(drop=True)
-                attendance.to_csv('./data/attendance.csv')
+                attended({'name':name, 'entrance_time':datetime.now(),'entrance_date':date.today()}, frame)
         else:
-            attendance = attendance.append({'name':name, 'entrance_time':datetime.now(),'entrance_date':date.today()}, ignore_index=True).reset_index(drop=True)
-            attendance.to_csv('./data/attendance.csv')
-        
+            attended({'name':name, 'entrance_time':datetime.now(),'entrance_date':date.today()}, frame)
+    
+    
     # adding a rectangle to face detected and name
     for (x, y, w, h) in faces:
         cv2.rectangle(frame, (x,y),(x+w, y+h),(0,255,0), 2)
@@ -97,6 +105,8 @@ while True:
         if name is not None:
             cv2.putText(frame, name, (x+6,h-6), font, 1.0,(255,255,255),1)
     # FRAME_WINDOW.image(frame, caption=name, width=700)
+    cv2.imshow('server', frame)
+    cv2.waitKey(1)
 
     with open('stream','wb') as fp:
         pickle.dump(frame, fp)
